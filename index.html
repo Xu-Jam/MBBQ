@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>母本播期匹配</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "SimHei", sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5; /* 背景颜色 */
+        }
+        h1, h3 {
+            color: #333; /* 标题颜色 */
+        }
+        .input-container {
+            margin-bottom: 20px;
+            background-color: #fff; /* 输入区域背景 */
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+        }
+        textarea {
+            width: 100%;
+            height: 150px; /* 调整高度 */
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px; /* 字体大小 */
+            transition: border-color 0.3s; /* 动效 */
+        }
+        textarea:focus {
+            border-color: #4CAF50; /* 聚焦边框颜色 */
+            outline: none; /* 去掉默认外框 */
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px; /* 按钮间距 */
+            transition: background-color 0.3s; /* 动效 */
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff; /* 输出区域背景 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px; /* 表格上方间距 */
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333; /* 表头文字颜色 */
+        }
+        td {
+            color: #555; /* 表格内容文字颜色 */
+        }
+        .button-container {
+            margin-top: 10px; /* 按钮区域间距 */
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <h1>母本播期匹配</h1>
+    <div class="input-container">
+        <h3>输入组合：</h3>
+        <textarea id="combinations" placeholder="在此输入大豆组合..."></textarea>
+    </div>
+    <div class="input-container">
+        <h3>上传Excel文件（包含亲本名称和播期）：</h3>
+        <input type="file" id="xlsxFile" accept=".xlsx">
+    </div>
+    <div class="button-container">
+        <button onclick="extractParents()">匹配播期</button>
+        <button onclick="clearContent()">清除内容</button>
+        <button onclick="window.location.href='https://www.123684.com/s/V9qA-AX2Gh'">下载亲本播期数据表</button>
+        <button onclick="copyResults()">复制结果</button> <!-- 添加复制结果按钮 -->
+    </div>
+    <div id="output">
+        <h3>结果：</h3>
+        <table id="results">
+            <thead>
+                <tr>
+                    <th>序号</th>
+                    <th>组合</th>
+                    <th>播期</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 结果将显示在这里 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let sowingData = {};
+        
+        document.getElementById('xlsxFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const sheet = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                
+                sowingData = {};
+                sheet.forEach(row => {
+                    if (row["亲本名称"] && row["播期"]) {
+                        sowingData[row["亲本名称"].trim()] = row["播期"].trim();
+                    }
+                });
+                alert("Excel 文件加载成功！");
+            };
+            reader.readAsArrayBuffer(file);
+        });
+        
+        function extractParents() {
+            const input = document.getElementById('combinations').value;
+            let combinations = input.split(/\n+/).map(line => line.trim()).filter(line => line);
+            
+            const tbody = document.getElementById('results').getElementsByTagName('tbody')[0];
+            tbody.innerHTML = '';
+            
+            combinations.forEach((combination, index) => {
+                if (!combination) return;
+                
+                const delimiters = ['/', '&', '*', '(', '（'];
+                let minIndex = combination.length;
+                delimiters.forEach(d => {
+                    let idx = combination.indexOf(d);
+                    if (idx > -1) minIndex = Math.min(minIndex, idx);
+                });
+                
+                const firstParent = combination.substring(0, minIndex).trim();
+                const sowingPeriod = sowingData[firstParent] || '未知';
+                
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = index + 1;
+                row.insertCell(1).textContent = combination;
+                row.insertCell(2).textContent = sowingPeriod;
+            });
+        }
+        
+        function clearContent() {
+            document.getElementById('combinations').value = ''; // 清空输入框
+            document.getElementById('results').getElementsByTagName('tbody')[0].innerHTML = ''; // 清空输出表格
+        }
+
+        function copyResults() {
+            const tbody = document.getElementById('results').getElementsByTagName('tbody')[0];
+            const rows = Array.from(tbody.rows);
+            let resultText = '序号\t组合\t播期\n'; // 表头
+            rows.forEach(row => {
+                const cells = Array.from(row.cells);
+                const rowText = cells.map(cell => cell.textContent).join('\t'); // 使用制表符分隔
+                resultText += rowText + '\n';
+            });
+            navigator.clipboard.writeText(resultText).then(() => {
+                alert('结果已复制到剪贴板！');
+            }).catch(err => {
+                console.error('复制失败: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
