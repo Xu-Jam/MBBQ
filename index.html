@@ -1,108 +1,340 @@
+
 <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <title>母本播期匹配</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>母本播期匹配工具</title>
     <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #C8E6C9;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --divider-color: #BDBDBD;
+            --background-color: #f8f9fa;
+            --card-color: #ffffff;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
-            font-family: "Microsoft YaHei", "SimHei", sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
+            font-family: "Microsoft YaHei", "SimHei", "PingFang SC", sans-serif;
+            color: var(--text-primary);
+            background-color: var(--background-color);
+            line-height: 1.6;
             padding: 20px;
-            background-color: #f5f5f5;
         }
-        h1, h3 {
-            color: #333;
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
         }
-        .input-container {
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--divider-color);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 10px;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+        }
+        
+        .description {
+            color: var(--text-secondary);
             margin-bottom: 20px;
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1rem;
         }
+        
+        .card {
+            background-color: var(--card-color);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+        }
+        
         textarea {
             width: 100%;
-            height: 150px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            height: 160px;
+            padding: 15px;
+            border: 1px solid var(--divider-color);
+            border-radius: 8px;
             font-size: 14px;
-            transition: border-color 0.3s;
+            resize: vertical;
+            transition: all 0.3s ease;
+            background-color: #FAFAFA;
+            font-family: inherit;
         }
+        
         textarea:focus {
-            border-color: #4CAF50;
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:focus {
             outline: none;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #4CAF50;
+        
+        .btn-primary {
+            background-color: var(--primary-color);
             color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: background-color 0.3s;
         }
-        button:hover {
-            background-color: #45a049;
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
         }
-        #output {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        
+        .btn-secondary {
+            background-color: #f1f1f1;
+            color: var(--text-secondary);
         }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .btn-icon {
+            margin-right: 8px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-        }
-        th, td {
-            padding: 10px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
         }
+        
         th {
-            background-color: #f2f2f2;
-            color: #333;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 12px 15px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--primary-color);
         }
+        
         td {
-            color: #555;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--divider-color);
+            color: var(--text-primary);
         }
-        .button-container {
-            margin-top: 10px;
+        
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+        
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.04);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .status-spring {
+            background-color: #E1F5FE;
+            color: #0288D1;
+        }
+        
+        .status-summer {
+            background-color: #FFFDE7;
+            color: #FBC02D;
+        }
+        
+        .status-autumn {
+            background-color: #FBE9E7;
+            color: #FF5722;
+        }
+        
+        .status-fresh {
+            background-color: #E8F5E9;
+            color: #388E3C;
+        }
+        
+        .status-unknown {
+            background-color: #F5F5F5;
+            color: #9E9E9E;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 0;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: var(--divider-color);
+        }
+        
+        .count-badge {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+        
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 0.3s, fadeOut 0.3s 2.7s;
+            max-width: 300px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(20px); }
         }
     </style>
 </head>
 <body>
-    <h1>母本播期匹配</h1>
-    <div class="input-container">
-        <h3>输入组合：</h3>
-        <textarea id="combinations" placeholder="在此输入大豆组合..."></textarea>
+    <div class="container">
+        <header>
+            <h1>母本播期匹配工具</h1>
+            <p class="description">为大豆组合快速匹配适合的播期类型，提高育种效率</p>
+        </header>
+        
+        <div class="card">
+            <h3>输入组合列表</h3>
+            <textarea id="combinations" placeholder="请输入大豆组合，每行一个组合...&#10;例如：&#10;中豆41/赣12&#10;皖豆28/东生17&#10;中黄13*赣豆15号&#10;华春6号&皖豆35"></textarea>
+            
+            <div class="btn-group">
+                <button onclick="extractParents()" class="btn-primary">
+                    <span class="btn-icon">✓</span>匹配播期
+                </button>
+                <button onclick="clearContent()" class="btn-secondary">
+                    <span class="btn-icon">✕</span>清除内容
+                </button>
+                <button onclick="copyResults()" class="btn-secondary">
+                    <span class="btn-icon">⧉</span>复制结果
+                </button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="results-header">
+                <h3>匹配结果 <span id="resultCount" class="count-badge"></span></h3>
+            </div>
+            
+            <div class="table-container">
+                <table id="results">
+                    <thead>
+                        <tr>
+                            <th width="8%">序号</th>
+                            <th width="47%">组合</th>
+                            <th width="45%">母本播期</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 结果将显示在这里 -->
+                    </tbody>
+                </table>
+                
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <p>请在上方输入框中输入大豆组合，然后点击"匹配播期"按钮</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 大豆育种研究工具 | 数据库包含超过200种亲本信息</p>
+        </footer>
     </div>
-    <div class="button-container">
-        <button onclick="extractParents()">匹配播期</button>
-        <button onclick="clearContent()">清除内容</button>
-        <button onclick="copyResults()">复制结果</button>
-    </div>
-    <div id="output">
-        <h3>结果：</h3>
-        <table id="results">
-            <thead>
-                <tr>
-                    <th>序号</th>
-                    <th>组合</th>
-                    <th>播期</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- 结果将显示在这里 -->
-            </tbody>
-        </table>
-    </div>
+    
+    <div id="toast" class="toast"></div>
 
     <script>
         // 亲本播期数据
@@ -685,7 +917,7 @@
   },
   {
     "亲本名称": "五星4号",
-    "播期": "鲜食"
+    "播期": "夏大豆"
   },
   {
     "亲本名称": "湘26",
