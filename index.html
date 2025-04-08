@@ -338,7 +338,6 @@
     <script>
         // 亲本播期数据
         const parentData = [
-            // 您的亲本播期数据数组保持不变
            {
     "亲本名称": "2024X2024",
     "播期": "夏大豆"
@@ -1429,27 +1428,36 @@
         
         function extractParents() {
             const input = document.getElementById('combinations').value;
-            // 修改：使用 \n 分割，并去除末尾空行
-            let combinations = input.split(/\n/).map(line => line.trim()).filter(line => line !== '');
-            
+            // 使用 \n 分割，保留空行
+            let combinations = input.split(/\n/).map(line => line.trim());
+
+            // 删除末尾的空行
+            while (combinations.length > 0 && combinations[combinations.length - 1] === '') {
+                combinations.pop();
+            }
+
             const tbody = document.getElementById('results').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
-            
+
             combinations.forEach((combination, index) => {
                 let sowingPeriod = '';
-                const delimiters = ['/', '&', '*', '(', '（', '×'];
-                let minIndex = combination.length;
-                delimiters.forEach(d => {
-                    let idx = combination.indexOf(d);
-                    if (idx > -1) minIndex = Math.min(minIndex, idx);
-                });
-                
-                const firstParent = combination.substring(0, minIndex).trim();
-                sowingPeriod = sowingData[firstParent] || '未知';
-                
+                if (combination) {
+                    const delimiters = ['/', '&', '*', '(', '（', '×'];
+                    let minIndex = combination.length;
+                    delimiters.forEach(d => {
+                        let idx = combination.indexOf(d);
+                        if (idx > -1) minIndex = Math.min(minIndex, idx);
+                    });
+
+                    const firstParent = combination.substring(0, minIndex).trim();
+                    sowingPeriod = sowingData[firstParent] || '未知';
+                } else {
+                    sowingPeriod = ''; // 可以根据需要修改此处的显示内容
+                }
+
                 const row = tbody.insertRow();
                 row.insertCell(0).textContent = index + 1;
-                row.insertCell(1).textContent = combination;
+                row.insertCell(1).textContent = combination || ''; // 显示占位符以区分空行
                 row.insertCell(2).textContent = sowingPeriod;
             });
 
