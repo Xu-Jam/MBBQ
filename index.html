@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
@@ -339,7 +338,8 @@
     <script>
         // 亲本播期数据
         const parentData = [
-  {
+            // 您的亲本播期数据数组保持不变
+           {
     "亲本名称": "2024X2024",
     "播期": "夏大豆"
   },
@@ -1419,7 +1419,7 @@
     "亲本名称": "浙鲜5号",
     "播期": "鲜食"
   }
-];
+        ];
         
         // 转换成查找表格式
         let sowingData = {};
@@ -1429,14 +1429,14 @@
         
         function extractParents() {
             const input = document.getElementById('combinations').value;
-            let combinations = input.split(/\n+/).map(line => line.trim()).filter(line => line);
+            // 修改：使用 \n 分割，并去除末尾空行
+            let combinations = input.split(/\n/).map(line => line.trim()).filter(line => line !== '');
             
             const tbody = document.getElementById('results').getElementsByTagName('tbody')[0];
             tbody.innerHTML = '';
             
             combinations.forEach((combination, index) => {
-                if (!combination) return;
-                
+                let sowingPeriod = '';
                 const delimiters = ['/', '&', '*', '(', '（', '×'];
                 let minIndex = combination.length;
                 delimiters.forEach(d => {
@@ -1445,18 +1445,22 @@
                 });
                 
                 const firstParent = combination.substring(0, minIndex).trim();
-                const sowingPeriod = sowingData[firstParent] || '未知';
+                sowingPeriod = sowingData[firstParent] || '未知';
                 
                 const row = tbody.insertRow();
                 row.insertCell(0).textContent = index + 1;
                 row.insertCell(1).textContent = combination;
                 row.insertCell(2).textContent = sowingPeriod;
             });
+
+            // 更新结果计数，显示总行数
+            document.getElementById('resultCount').textContent = combinations.length;
         }
         
         function clearContent() {
             document.getElementById('combinations').value = '';
             document.getElementById('results').getElementsByTagName('tbody')[0].innerHTML = '';
+            document.getElementById('resultCount').textContent = '';
         }
 
         function copyResults() {
